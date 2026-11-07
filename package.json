@@ -1,0 +1,15 @@
+{
+  "name": "zeeshan-portfolio-v2",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zeeshan Abid's portfolio, version 2: a static, fast, accessible site built from content/data.js",
+  "scripts": {
+    "build": "node build.js",
+    "build:pages": "node build.js --pages",
+    "build:live": "node build.js --live",
+    "serve": "node serve.js"
+  },
+  "dependencies": {
+    "sharp": "^0.33.5"
+  }
+}

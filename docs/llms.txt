@@ -1,0 +1,18 @@
+# Zeeshan Abid
+
+> Zeeshan Abid is a multi-disciplinary designer in Toronto, Ontario, Canada, working since 2017 in branding, motion graphics, marketing campaigns, packaging and UI/UX.
+
+## Highlights
+
+- [Pizza Now](https://maira-abid.github.io/Zeeshan-Portfolio-Site-V2/work/pizza-now/): The highest-selling brand on the Byte app for a year, driving 50–60% of daily sales.
+- [Collegiate Survival Sale](https://maira-abid.github.io/Zeeshan-Portfolio-Site-V2/work/collegiate-survival-sale/): Tripled sales and sold 60% of the stock in five days.
+- [CarSwitch Animations](https://maira-abid.github.io/Zeeshan-Portfolio-Site-V2/work/carswitch/): 35k views, 30% fewer queries and 50% more website visits.
+- [Evercare Hospital Animations](https://maira-abid.github.io/Zeeshan-Portfolio-Site-V2/work/evercare/): Cut common COVID-19 queries by 40% with explainers averaging 20K views.
+- [Breakfast Box](https://maira-abid.github.io/Zeeshan-Portfolio-Site-V2/work/breakfast-box/): 150–200 orders a day for the four months after launch.
+- [Black Friday Sale](https://maira-abid.github.io/Zeeshan-Portfolio-Site-V2/work/black-friday/): Lifted Black Friday product sales by 60–70%.
+
+## Pages
+
+- [Work](https://maira-abid.github.io/Zeeshan-Portfolio-Site-V2/work/)
+- [About](https://maira-abid.github.io/Zeeshan-Portfolio-Site-V2/about/)
+- [Contact](https://maira-abid.github.io/Zeeshan-Portfolio-Site-V2/contact/)

@@ -1,0 +1,13 @@
+# dependencies and logs
+node_modules/
+*.log
+
+# ./public is the local preview build (rebuild any time with `npm run build`); ./docs is the build GitHub Pages serves and IS committed
+/public/
+
+# editor / OS / local tool settings
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/
