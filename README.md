@@ -63,7 +63,7 @@ node serve.js     # optional preview at http://localhost:5190
 | Fast | Plain HTML, one CSS file, one small JS file. No framework. WebP images with srcset, lazy-loaded; Vimeo only loads on click. |
 | Accessible | axe-core: zero violations on all 16 pages. Keyboard navigation, native `<dialog>` lightbox, visible focus, reduced-motion respected, project colours checked for 4.5:1 text contrast at build time. |
 | Findable | Each page has a title, description, canonical URL, Open Graph image, and JSON-LD (Person, ProfessionalService, WebSite, CollectionPage, CreativeWork, BreadcrumbList). Also sitemap.xml, robots.txt and llms.txt. |
-| Works without JS | Every page is complete HTML. JS only adds the tabs, filter, peek preview, lightbox and form helper. |
+| Works without JS | Every page is complete HTML. JS only adds the tabs, filter, lightbox and form helper. |
 | Smooth | CSS view transitions between pages, so a project image carries across to its case study; scroll-driven reveals where the browser supports them. |
 
 ## Placeholders to replace (top of `build.js`, `CONFIG`)
@@ -98,3 +98,15 @@ SITE_URL=https://yourdomain.com SITE_EMAIL=you@yourdomain.com node build.js --li
 `--live` switches to clean links (`/work/`, not `/work/index.html`), allows indexing, points the sitemap, canonical links, share images and search data at the real domain, and adds the email and Toronto map coordinates to the search data. If either value is still a placeholder it stays `noindex` and says so. Optionally set `CONFIG.headshotUrl` to add your photo to the search data.
 
 After deploying: submit `sitemap.xml` in Google Search Console and Bing Webmaster Tools, and check the share image with a link-preview tool.
+
+## Tango photos hidden, image protection, white project colours
+
+- **Tango photos are hidden, not deleted:** `tango-photos` is left out of `GALLERIES` in `build.js` (the data and images stay in `content/`). Add it back to that list to show it again. Its page and image files no longer appear in `public/` or `docs/`.
+- **Image protection (a deterrent only):** gallery images are buttons that open the lightbox (there is no link to the image file to open in a new tab), and images do not offer the right-click menu, cannot be dragged out, and are not long-press savable (`src/main.js`, last rule in `src/styles.css`). It cannot stop screenshots, developer tools, or someone who already knows an image's address. The GitHub repository itself is public, so the files are also downloadable there.
+- **White text on every project colour (owner's choice)** (`THEME` in `build.js`). The four light colours from the work (orange, pink, mint, beige) are darkened only slightly, from about 1.8 to 2.0:1 up to about 3.2 to 3.3:1 with white. That passes WCAG for large text (3:1) but not for small text (4.5:1), so the build still prints a "LOW CONTRAST" warning for them.
+
+## Client list, 1200 px images, home panel crops (07-Nov-2026)
+
+- **Client strip:** the scrolling strip on the home page uses the client's own list, alphabetical (`CLIENTS` in `build.js`).
+- **No full-size images are published.** `webRel()` / `imgTag()` / `copyImages()` only use and only copy the largest web copy of each image (1200 px wide at most); the full-size files stay in `content/img/` for rebuilding the share images but are never in `public/` or `docs/`. This is a deterrent, like the right-click and drag block: screenshots still work, and the GitHub repository itself still contains the files in `content/img/`.
+- **Home panels:** the picture sits in a 4:3 frame, and `PANEL` in `build.js` picks the frame and crop for CarSwitch (the "Looking to sell your car?" frame) and Breakfast Box (logo kept whole). The picture is shown whole at rest and only zooms slightly and drifts on hover.

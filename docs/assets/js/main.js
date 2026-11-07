@@ -68,24 +68,18 @@
       });
     });
   }
-  var rows = $$('.worklist a[data-img]');
-  if (rows.length && window.matchMedia('(pointer: fine)').matches && !reduce) {
-    var peek = document.createElement('div'); peek.className = 'peek'; peek.setAttribute('aria-hidden', 'true'); peek.innerHTML = '<img alt="" width="300" height="225">'; document.body.appendChild(peek);
-    var pimg = $('img', peek), x = 0, y = 0, tx = 0, ty = 0, raf = 0;
-    var loop = function () { x += (tx - x) * 0.16; y += (ty - y) * 0.16; peek.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) rotate(' + ((tx - x) * 0.04).toFixed(2) + 'deg)'; raf = requestAnimationFrame(loop); };
-    rows.forEach(function (a) {
-      a.addEventListener('pointerenter', function (e) { pimg.src = a.getAttribute('data-img'); peek.style.setProperty('--pa', a.getAttribute('data-pa') || ''); tx = x = e.clientX + 24; ty = y = e.clientY - 70; peek.classList.add('on'); if (!raf) loop(); });
-      a.addEventListener('pointermove', function (e) { tx = e.clientX + 24; ty = e.clientY - 70; });
-      a.addEventListener('pointerleave', function () { peek.classList.remove('on'); cancelAnimationFrame(raf); raf = 0; });
-    });
-  }
+  /* Image protection (a deterrent, not a lock): no right-click menu, no dragging an image out and no long-press "save image" on images,
+     so "Open image in new tab" and "Save image as" are not offered. It cannot stop screenshots or the browser's developer tools. */
+  document.addEventListener('contextmenu', function (e) { if (e.target && e.target.tagName === 'IMG') e.preventDefault(); });
+  document.addEventListener('dragstart', function (e) { if (e.target && e.target.tagName === 'IMG') e.preventDefault(); });
 
   /* gallery lightbox (native <dialog>) */
   var dlg = $('dialog.lb');
   if (dlg && typeof dlg.showModal === 'function') {
     var di = $('img', dlg);
-    $$('.gallery a').forEach(function (a) {
-      a.addEventListener('click', function (e) { e.preventDefault(); var im = $('img', a); di.src = a.href; di.alt = im ? im.alt : ''; dlg.showModal(); });
+    // gallery images are buttons, not links to the image file, so there is no "open in new tab" link to click
+    $$('.gallery .zoom').forEach(function (b) {
+      b.addEventListener('click', function () { var im = $('img', b); di.src = b.getAttribute('data-full'); di.alt = im ? im.alt : ''; dlg.showModal(); });
     });
     dlg.addEventListener('click', function (e) { if (e.target === dlg || e.target.closest('.in') === e.target || e.target.tagName === 'BUTTON') dlg.close(); });
   }
@@ -153,28 +147,6 @@
       });
       h1.replaceChild(frag, node);
     });
-  }
-
-  /* hero: a film frame of each project follows the pointer over the headline and changes as you travel */
-  var htop = $('.hero__top');
-  if (htop && fine && !reduce) {
-    var list = []; try { list = JSON.parse(htop.getAttribute('data-lens') || '[]'); } catch (e) {}
-    if (list.length) {
-      var lens = document.createElement('div'); lens.className = 'lens'; lens.setAttribute('aria-hidden', 'true');
-      lens.innerHTML = '<img alt="" width="400" height="300"><div class="lens__tag"><span></span><span></span></div>'; htop.appendChild(lens);
-      var limg = $('img', lens), ltags = $$('.lens__tag span', lens), hint = $('.lens-hint'), li = -1, travelled = 0, lastX = null, lastY = null, lx = 0, ly = 0, ltx = 0, lty = 0, lraf = 0, started = false;
-      var showFrame = function (i) { li = (i + list.length) % list.length; limg.src = list[li][0]; ltags[0].textContent = list[li][1]; ltags[1].textContent = pad2(li + 1); };
-      var lloop = function () { lx += (ltx - lx) * .2; ly += (lty - ly) * .2; lens.style.transform = 'translate3d(' + lx.toFixed(1) + 'px,' + ly.toFixed(1) + 'px,0) rotate(' + ((ltx - lx) * .035).toFixed(2) + 'deg)'; lraf = requestAnimationFrame(lloop); };
-      htop.addEventListener('pointermove', function (e) {
-        if (e.pointerType !== 'mouse' || !motionOn()) return;
-        var r = htop.getBoundingClientRect(); ltx = e.clientX - r.left - lens.offsetWidth / 2; lty = e.clientY - r.top - lens.offsetHeight / 2;
-        if (!started) { started = true; lx = ltx; ly = lty; showFrame(0); lens.classList.add('on'); if (hint) hint.classList.add('used'); if (!lraf) lloop(); }
-        if (lastX !== null) { travelled += Math.abs(e.clientX - lastX) + Math.abs(e.clientY - lastY); if (travelled > 340) { travelled = 0; showFrame(li + 1); } }
-        lastX = e.clientX; lastY = e.clientY; lens.classList.add('on');
-        if (!lraf) lloop();
-      });
-      htop.addEventListener('pointerleave', function () { lens.classList.remove('on'); cancelAnimationFrame(lraf); lraf = 0; started = false; lastX = lastY = null; });
-    }
   }
 
   /* project cards: the image drifts against the pointer */

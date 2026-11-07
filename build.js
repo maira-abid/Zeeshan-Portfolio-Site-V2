@@ -55,12 +55,14 @@ const indName = (id) => S.industries.find((c) => c.id === id).name;
 /* ---------- editorial choices ---------- */
 // Only work that can be defended with a story is a full case study. Projects with no write-up yet are left out of this version.
 const CASES = ['pizza-now', 'collegiate-survival-sale', 'carswitch', 'evercare', 'breakfast-box', 'black-friday'];
-const GALLERIES = ['byte-app', 'annual-winter-sale', 'generation-magazines', 'tango-photos'];
+const GALLERIES = ['byte-app', 'annual-winter-sale', 'generation-magazines']; // 'tango-photos' is hidden at the owner's request: add it back to this list to show it again
 const ORDER = [...CASES, ...GALLERIES];
 const THEME = { // each project's own colour, taken from the work, and the text colour that is readable on it
-  'pizza-now': ['#17763a', '#ffffff'], 'collegiate-survival-sale': ['#d3202b', '#ffffff'], carswitch: ['#f6a623', '#15130f'], evercare: ['#14367a', '#ffffff'],
-  'breakfast-box': ['#f4a6bd', '#15130f'], 'black-friday': ['#34d8a4', '#15130f'], 'byte-app': ['#c4312f', '#ffffff'], 'annual-winter-sale': ['#b3121a', '#ffffff'],
-  'generation-magazines': ['#cdbfa6', '#15130f'], 'tango-photos': ['#c2185b', '#ffffff'],
+  // every project uses white text (owner's choice). The four light colours from the work (orange, pink, mint, beige) are darkened only slightly, to about 3.2:1 with white:
+  // enough for large text (3:1) but still under 4.5:1 for small text, so the build below still warns about them.
+  'pizza-now': ['#17763a', '#ffffff'], 'collegiate-survival-sale': ['#d3202b', '#ffffff'], carswitch: ['#c97c00', '#ffffff'], evercare: ['#14367a', '#ffffff'],
+  'breakfast-box': ['#dc6b8e', '#ffffff'], 'black-friday': ['#14a074', '#ffffff'], 'byte-app': ['#c4312f', '#ffffff'], 'annual-winter-sale': ['#b3121a', '#ffffff'],
+  'generation-magazines': ['#a08b64', '#ffffff'], 'tango-photos': ['#c2185b', '#ffffff'],
 };
 const HERO = {
   'pizza-now': 'pizza-now/box-1.webp', 'breakfast-box': 'breakfast-box/bb-3.webp', 'black-friday': 'black-friday/hero-1.webp', 'collegiate-survival-sale': 'collegiate-survival-sale/hero-5.webp',
@@ -99,6 +101,12 @@ const PROOF = [
   { need: 'A hard message made simple', slug: 'evercare', metric: '−40%', label: 'common COVID-19 questions after four explainer animations', img: 'evercare/storyboard-5.webp', alt: 'Evercare explainer animation frame' },
   { need: 'Animation that gets noticed', slug: 'carswitch', metric: '35k', label: 'views, 30% fewer queries and 50% more website visits', img: 'carswitch/intro.webp', alt: 'CarSwitch animation frame' },
 ];
+// Home panels: the picture is shown in a 4:3 frame, so each frame (and where it is cropped) is chosen to keep logos, headlines and subjects whole.
+// pos = which part of a wider picture stays visible (0% = left edge, 100% = right edge).
+const PANEL = {
+  carswitch: { img: 'carswitch/storyboard-4.webp', pos: '64% 50%', alt: 'CarSwitch animation frame: a seller character beside the question "Looking to sell your car?"' },
+  'breakfast-box': { img: 'breakfast-box/bb-3.webp', pos: '0% 50%', alt: 'Breakfast Box branding with the logo on a plate of breakfast' },
+};
 const POSTERS = { carswitch: ['carswitch/intro.webp', 'carswitch/storyboard-2.webp', 'carswitch/storyboard-3.webp'], evercare: ['evercare/flatten-curve.webp', 'evercare/storyboard-3.webp', 'evercare/storyboard-5.webp', 'evercare/storyboard-7.webp'] };
 
 /* ---------- helpers ---------- */
@@ -110,21 +118,29 @@ const results = (p) => { for (const b of p.blocks) if (b.stats) return b.stats.m
 const firstSentences = (t, n) => (t.match(/[^.!?]+[.!?]+/g) || [t]).slice(0, n).join(' ').trim();
 let ROOTP = ''; // path prefix back to the site root for the page being rendered ('', '../', '../../')
 const used = new Set();
+// The client's clients, alphabetical (client's list, 07-Nov-2026): used by the scrolling strip on the home page.
+const CLIENTS = ['Breakfast Box', 'Byte Technology Systems', 'CarSwitch', 'Colabs', 'Evercare Hospital', 'Generation (Pvt) Ltd', 'Multiverse', 'Pizza Now', 'Start-up Grind', 'Treble App', 'Uncle Tetsu'];
 function srcFile(rel) { return path.join(SITE, 'img', rel); }
+// High-resolution protection: the site only ever uses (and only ever publishes) the largest web copy of an image, 1200 px wide at most,
+// never the full-size file. Images that are already 1200 px or smaller have no separate copies and are used as they are.
+function webRel(rel) {
+  const m = MEDIA['img/' + rel] || {};
+  return m.v && m.v.length ? rel.replace(/\.webp$/, '') + '-' + m.v[m.v.length - 1] + '.webp' : rel;
+}
 function imgTag(rel, alt, o = {}) {
   used.add(rel);
   const m = MEDIA['img/' + rel] || {}, base = rel.replace(/\.webp$/, '');
   const url = (r) => ROOTP + 'assets/img/' + r;
   let srcset = '';
-  if (m.v && m.v.length) srcset = ` srcset="${m.v.map((w) => `${url(base + '-' + w + '.webp')} ${w}w`).join(', ')}, ${url(rel)} ${m.w}w" sizes="${o.sizes || '100vw'}"`;
+  if (m.v && m.v.length) srcset = ` srcset="${m.v.map((w) => `${url(base + '-' + w + '.webp')} ${w}w`).join(', ')}" sizes="${o.sizes || '100vw'}"`;
   const dims = m.w ? ` width="${m.w}" height="${m.h}"` : '';
-  const vt = o.vt ? ` style="view-transition-name:${o.vt}"` : '';
-  return `<img src="${url(rel)}" alt="${esc(alt)}"${dims}${srcset}${o.eager ? ' fetchpriority="high"' : ' loading="lazy"'} decoding="async"${vt}>`;
+  const style = [o.vt ? `view-transition-name:${o.vt}` : '', o.pos ? `object-position:${o.pos}` : ''].filter(Boolean).join(';');
+  return `<img src="${url(webRel(rel))}" alt="${esc(alt)}"${dims}${srcset}${o.eager ? ' fetchpriority="high"' : ' loading="lazy"'} decoding="async"${style ? ` style="${style}"` : ''}>`;
 }
 function copyImages() {
   for (const rel of used) {
     const base = rel.replace(/\.webp$/, ''), m = MEDIA['img/' + rel] || {};
-    const names = [rel, ...(m.v || []).map((w) => `${base}-${w}.webp`)];
+    const names = m.v && m.v.length ? m.v.map((w) => `${base}-${w}.webp`) : [rel]; // the full-size file is not published when web copies exist
     for (const n of names) { const to = path.join(OUT, 'assets', 'img', n); fs.mkdirSync(path.dirname(to), { recursive: true }); fs.copyFileSync(srcFile(n), to); }
   }
 }
@@ -229,9 +245,9 @@ function home() {
       <p class="pan__metric num" aria-hidden="true">${ROW[slug][0]}</p><p class="pan__words">${esc(ROW[slug][1])}</p>
       <h3><a class="pan__link" href="work/${slug}/">${esc(p.title)}</a></h3><p class="pan__out">${esc(OUTCOME[slug])}</p>
       <div class="pan__chips">${p.categories.map((c) => `<span class="chip">${esc(catName(c))}</span>`).join('')}</div></div>
-    <div class="pan__img">${imgTag(HERO[slug], (p.lead && p.lead.alt) || p.title, { sizes: '(max-width: 860px) 100vw, 58vw', vt: 'p-' + slug, eager: i === 0 })}</div></div></li>`; }).join('');
+    <div class="pan__img">${imgTag(PANEL[slug] ? PANEL[slug].img : HERO[slug], PANEL[slug] ? PANEL[slug].alt : ((p.lead && p.lead.alt) || p.title), { sizes: '(max-width: 860px) 100vw, 58vw', vt: 'p-' + slug, eager: i === 0, pos: PANEL[slug] && PANEL[slug].pos })}</div></div></li>`; }).join('');
   const body = `<section class="hero hero--home"><div class="wrap">
-  <div class="hero__top" data-lens="${esc(JSON.stringify(CASES.map((s) => [ROOTP + 'assets/img/' + HERO[s], proj(s).title])))}"><h1 class="display">Design that moves <em>numbers.</em></h1><p class="lens-hint" aria-hidden="true">Move over the headline</p></div>
+  <div class="hero__top"><h1 class="display">Design that moves <em>numbers.</em></h1></div>
   <div class="hero__row">
     <div><p class="lede">I am Zeeshan, a designer in Toronto. I build brands, campaigns and motion, then check the numbers: a pizza brand that became the app's top seller, a sale that tripled revenue, animations that cut support queries by 40%.</p>
     <div class="hero__actions"><a class="btn" href="work/">See the work ${arrow}</a></div></div>
@@ -269,7 +285,7 @@ function home() {
 </div></section>
 <section class="section brands" aria-labelledby="cl-h"><div class="wrap">
   <h2 class="label" id="cl-h">Brands I have worked with</h2></div>
-  <div class="marquee">${SUIT_SPRITE}${(() => { const names = ['CarSwitch', 'Evercare Hospital', 'Byte', 'Generation', 'Multiverse', 'Milkyway', 'Startup Grind', 'COLABS', 'Treble']; const row = (rev, hid) => `<div class="marquee__row${rev ? ' marquee__row--rev' : ''}"${hid ? ' aria-hidden="true"' : ''}>${[0, 1].map((k) => `<ul${k ? ' aria-hidden="true"' : ''}>${(rev ? [...names].reverse() : names).map((c, i) => `<li>${c}<svg class="suit" aria-hidden="true" viewBox="0 0 24 24"><use href="#s-${SUITS[i % SUITS.length]}"/></svg></li>`).join('')}</ul>`).join('')}</div>`; return row(false, false); })()}</div>
+  <div class="marquee">${SUIT_SPRITE}${(() => { const names = CLIENTS; const row = (rev, hid) => `<div class="marquee__row${rev ? ' marquee__row--rev' : ''}"${hid ? ' aria-hidden="true"' : ''}>${[0, 1].map((k) => `<ul${k ? ' aria-hidden="true"' : ''}>${(rev ? [...names].reverse() : names).map((c, i) => `<li>${c}<svg class="suit" aria-hidden="true" viewBox="0 0 24 24"><use href="#s-${SUITS[i % SUITS.length]}"/></svg></li>`).join('')}</ul>`).join('')}</div>`; return row(false, false); })()}</div>
 </section>
 ${cta()}`;
   add({ file: 'index.html', path: '/', key: 'home', og: 'home', title: 'Zeeshan Abid | Brand, Motion and Campaign Designer in Toronto', description: 'Toronto designer building brands, campaigns and animations that move numbers: 3x sales, a #1 food brand, 40% fewer support queries. See the work.', type: 'WebPage' }, body);
@@ -280,14 +296,14 @@ function work() {
   const cats = S.categories.filter((c) => ORDER.some((s) => proj(s).categories.includes(c.id)));
   const rows = ORDER.map((slug, i) => {
     const p = proj(slug), res = ROW[slug] ? `<b class="num">${ROW[slug][0]}</b> ${esc(ROW[slug][1])}` : esc(OUTCOME[slug]);
-    return `<li data-cats="${p.categories.join(' ')}"><a href="${slug ? ROOTP + 'work/' + slug + '/' : '#'}" data-img="${ROOTP}assets/img/${HERO[slug]}" data-pa="${THEME[slug][0]}">
+    return `<li data-cats="${p.categories.join(' ')}"><a href="${slug ? ROOTP + 'work/' + slug + '/' : '#'}">
       <span class="i">${String(i + 1).padStart(2, '0')}</span>
       ${imgTag(HERO[slug], '', { sizes: '96px' }).replace('class=', 'class=').replace('<img ', '<img class="thumb" ')}
       <span class="t">${esc(p.title)}<small>${p.categories.map(catName).join(' / ')}</small></span><i class="lead" aria-hidden="true"></i><span class="r">${res}</span></a></li>`;
   }).join('\n');
   const body = `<section class="hero" style="padding-bottom:0"><div class="wrap">
   <p class="label">Work</p><h1 class="display">Real work. <em>Real results.</em></h1>
-  <p class="lede hero__sub">Case studies with the numbers, and image-led projects. Hover a row to peek, click to read.</p>
+  <p class="lede hero__sub">Case studies with the numbers, and image-led projects. Click a row to read.</p>
   <div class="filters" role="group" aria-label="Filter projects"><button type="button" data-filter="all" aria-pressed="true">All</button>${cats.map((c) => `<button type="button" data-filter="${c.id}" aria-pressed="false">${esc(c.name)}</button>`).join('')}</div>
   <p class="sr-only" id="filter-live" aria-live="polite"></p>
   <ul class="worklist">${rows}</ul>
@@ -306,7 +322,12 @@ function casePage(slug) {
   let n = 0, html = '';
   const gal = (items, cap, cls) => {
     const list = items.filter((m) => m.t === 'img').slice(0, cap); if (!list.length) return '';
-    return `<div class="gallery ${cls || ''}">${list.map((m) => `<a href="${ROOTP}assets/img/${m.src}">${imgTag(m.src, m.alt, { sizes: list.length === 1 ? '(max-width: 980px) 100vw, 60vw' : '(max-width: 720px) 100vw, 30vw' })}</a>`).join('')}</div>`;
+    return `<div class="gallery ${cls || ''}">${list.map((m) => `<button type="button" class="zoom" data-full="${ROOTP}assets/img/${webRel(m.src)}" aria-label="Enlarge image: ${esc(m.alt)}">${imgTag(m.src, m.alt, { sizes: list.length === 1 ? '(max-width: 980px) 100vw, 60vw' : '(max-width: 720px) 100vw, 30vw' })}</button>`).join('')}</div>`;
+  };
+  // tall designs (emails, long pages, magazines): shown in a fixed-height window that scrolls, so the whole design can be read in place
+  const scr = (items) => {
+    const list = items.filter((m) => m.t === 'scroll'); if (!list.length) return '';
+    return `<div class="scrolls scrolls--${Math.min(list.length, 3)}">${list.map((m) => `<figure><div class="scroll" tabindex="0" role="region" aria-label="${esc(m.alt)}: scrollable design">${imgTag(m.src, m.alt, { sizes: '(max-width: 720px) 100vw, 50vw' })}</div><figcaption>${esc(m.alt)}</figcaption></figure>`).join('')}</div>`;
   };
   p.blocks.forEach((b) => {
     if (b.type === 'section') {
@@ -314,20 +335,23 @@ function casePage(slug) {
       const lab = LABELS[b.title] || [b.title, b.title]; n++;
       const stats = b.stats ? `<div class="stats">${b.stats.map((s) => `<div class="stat"><b class="num">${typo(s.n)}</b><span>${esc(s.l)}</span></div>`).join('')}</div>` : '';
       const bullets = b.bullets && !b.stats ? `<ul style="list-style:disc;padding-left:1.2em;margin-top:12px">${b.bullets.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : '';
-      html += `<section class="reveal"><h2><small>${String(n).padStart(2, '0')} / ${esc(lab[0])}</small>${esc(lab[1])}</h2>${(b.paras || []).map((t) => `<p>${esc(t)}</p>`).join('')}${stats}${bullets}${b.media ? gal(b.media, 2, b.media.length > 1 ? 'gallery--2' : 'gallery--1') : ''}</section>`;
+      html += `<section class="reveal"><h2><small>${String(n).padStart(2, '0')} / ${esc(lab[0])}</small>${esc(lab[1])}</h2>${(b.paras || []).map((t) => `<p>${esc(t)}</p>`).join('')}${stats}${bullets}${b.media ? gal(b.media, 2, b.media.length > 1 ? 'gallery--2' : 'gallery--1') + scr(b.media) : ''}</section>`;
     } else if (b.type === 'media') {
       if (b.layout === 'videos') {
         const vids = b.items.filter((m) => m.t === 'vimeo'); if (!vids.length) return;
         const posters = POSTERS[slug] || [];
         html += `<section class="reveal"><h2><small>Watch</small>${esc(b.heading)}</h2><div class="facades">${vids.map((v, i) => `<button class="facade" type="button" data-vimeo="${v.id}" data-title="${esc(v.title)}" aria-label="Play video: ${esc(v.title)}">${imgTag(posters[i % posters.length] || HERO[slug], '', { sizes: '(max-width: 720px) 100vw, 33vw' })}<span class="play" aria-hidden="true"><i><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></i></span><b>${esc(v.title)}</b></button>`).join('')}</div></section>`;
+      } else if (b.items.some((m) => m.t === 'scroll')) {
+        const sec = `<section class="reveal"><h2><small>${b.layout === 'scroll' && /email/i.test(b.heading) ? 'In the inbox' : 'Full designs'}</small>${esc(b.heading)}</h2>${b.note ? `<p>${esc(b.note)}</p>` : '<p>Scroll inside each design to see all of it.</p>'}${scr(b.items)}</section>`;
+        html += sec;
       } else if (b.items.some((m) => m.t === 'img')) {
-        const cap = slug === 'tango-photos' ? 12 : 6;
+        const cap = slug === 'tango-photos' ? 12 : 12;
         html += `<section class="reveal"><h2><small>Selected visuals</small>${esc(b.heading)}</h2>${gal(b.items, cap)}</section>`;
       }
     }
   });
   const [pa, on] = THEME[slug];
-  const glance = `<aside class="glance" aria-label="Project at a glance"><dl>
+  const glance =`<aside class="glance" aria-label="Project at a glance"><dl>
     <div><dt>Client</dt><dd>${esc(p.client)}</dd></div>
     <div><dt>Industry</dt><dd>${p.industries.map(indName).join(', ')}</dd></div>
     <div><dt>What I did</dt><dd><ul>${p.categories.map((c) => `<li>${esc(catName(c))}</li>`).join('')}</ul></dd></div>

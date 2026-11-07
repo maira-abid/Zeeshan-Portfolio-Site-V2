@@ -828,39 +828,29 @@ window.MEDIA = {
   "h": 800
  },
  "img/black-friday/email-rewards.webp": {
-  "w": 1000,
-  "h": 2193,
-  "v": [
-   640
-  ]
+  "w": 748,
+  "h": 4188,
+  "v": []
  },
  "img/black-friday/email-starts.webp": {
-  "w": 1000,
-  "h": 2298,
-  "v": [
-   640
-  ]
+  "w": 748,
+  "h": 4389,
+  "v": []
  },
  "img/black-friday/email-whats-left.webp": {
-  "w": 1000,
-  "h": 2758,
-  "v": [
-   640
-  ]
+  "w": 748,
+  "h": 5268,
+  "v": []
  },
  "img/collegiate-survival-sale/email-launch.webp": {
-  "w": 1000,
-  "h": 2725,
-  "v": [
-   640
-  ]
+  "w": 748,
+  "h": 5205,
+  "v": []
  },
  "img/collegiate-survival-sale/email-last-call.webp": {
-  "w": 1000,
-  "h": 1914,
-  "v": [
-   640
-  ]
+  "w": 748,
+  "h": 3655,
+  "v": []
  },
  "img/annual-winter-sale/inspiration.webp": {
   "w": 1000,
