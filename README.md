@@ -51,8 +51,8 @@ node serve.js     # optional preview at http://localhost:5190
 - *Slate:* the hero facts sit in a clapperboard-style table, with a film-timecode ruler header that comes back on the case-study side panel and the contact band.
 - *Stack:* the home page shows each of the six case studies once, full screen, as a stack of panels that slide over one another. Each leads with the problem it solved ("A brand that sells"), the number it moved, and a large image. On phones they become normal stacked cards. The Work page is a results menu with dot leaders.
 - *Hard edges:* 2px ink rules, square corners, no shadows, no pills, no gradients or glassy cards.
-- *Type:* Archivo at its narrowest width, uppercase, for display; IBM Plex Mono for labels. Both are open-licence fonts and are self-hosted (about 135 KB in total).
-- *One highlight:* an ultramarine marker pen on the key word of each page's headline. Everything else is ink on paper, or the project's own colour taken from the work itself.
+- *Type:* Raleway only (from the brand style guide PDF), uppercase and heavy for display and small labels. It is an open-licence font (SIL OFL), self-hosted (about 48 KB). The punk font from the first site is for the logo only and is not used here.
+- *Colour:* from the style guide: Violet Ray #8F00FF, Carbon Black #1B1B1B, That Other Grey #E5E5E5 and White. Dark mode is Carbon Black with a lighter tint of the violet for text and marks (pure violet is too dim on black); light mode is white with the pure violet. One highlight: a violet marker pen on the key word of each page headline. Everything else is ink on paper, or the project’s own colour taken from the work itself.
 - *Brand checks, used sparingly:* a faint checkerboard behind the home hero that fades out, card suits (spade, heart, club, diamond) between the client names in the marquee, and one thin row of checks above the footer. Nothing else.
 - Light and dark follow the visitor's system.
 

@@ -128,7 +128,7 @@ function copyImages() {
     for (const n of names) { const to = path.join(OUT, 'assets', 'img', n); fs.mkdirSync(path.dirname(to), { recursive: true }); fs.copyFileSync(srcFile(n), to); }
   }
 }
-const themeStyle = (slug) => { const t = THEME[slug] || ['#2a37ff', '#ffffff']; return `--pa:${t[0]};--on:${t[1]}`; };
+const themeStyle = (slug) => { const t = THEME[slug] || ['#8f00ff', '#ffffff']; return `--pa:${t[0]};--on:${t[1]}`; };
 const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 
 /* ---------- brand motifs: card suits (shapes from the original site's icon set) ---------- */
@@ -154,14 +154,14 @@ function shell(pg, body) {
 <meta name="description" content="${esc(pg.description)}">
 <meta name="robots" content="${robots}">
 <link rel="canonical" href="${url}">
-<meta name="theme-color" content="#0e0d0b">
+<meta name="theme-color" content="#1b1b1b">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Zeeshan Abid"><meta property="og:locale" content="en_CA">
 <meta property="og:title" content="${esc(pg.title)}"><meta property="og:description" content="${esc(pg.description)}"><meta property="og:url" content="${url}">
 <meta property="og:image" content="${og}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="${ROOTP}assets/favicon.svg" type="image/svg+xml">
-<link rel="preload" href="${ROOTP}assets/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="${ROOTP}assets/fonts/plex-mono-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="${ROOTP}assets/fonts/raleway-var.woff2" as="font" type="font/woff2" crossorigin>
+
 <link rel="stylesheet" href="${ROOTP}assets/css/styles.css">
 <script>(function(){var d=document.documentElement;d.className+=' js';var t='dark',m='on';try{t=localStorage.getItem('zs-theme')||'dark';m=localStorage.getItem('zs-motion')||(matchMedia('(prefers-reduced-motion: reduce)').matches?'off':'on')}catch(e){}d.setAttribute('data-theme',t);d.setAttribute('data-motion',m)})()</script>
 <script type="application/ld+json">${JSON.stringify(pg.jsonld)}</script>
@@ -409,7 +409,7 @@ async function ogImages() {
   for (const slug of ORDER) await sharp(srcFile(HERO[slug])).resize(1200, 630, { fit: 'cover', position: 'attention' }).jpeg({ quality: 82, mozjpeg: true }).toFile(path.join(dir, slug + '.jpg'));
   const trio = ['pizza-now', 'collegiate-survival-sale', 'carswitch'];
   const tiles = await Promise.all(trio.map((s) => sharp(srcFile(HERO[s])).resize(400, 630, { fit: 'cover', position: 'attention' }).jpeg({ quality: 82 }).toBuffer()));
-  const collage = sharp({ create: { width: 1200, height: 630, channels: 3, background: '#0e0d0b' } }).composite(tiles.map((input, i) => ({ input, left: i * 400, top: 0 }))).jpeg({ quality: 82 });
+  const collage = sharp({ create: { width: 1200, height: 630, channels: 3, background: '#1b1b1b' } }).composite(tiles.map((input, i) => ({ input, left: i * 400, top: 0 }))).jpeg({ quality: 82 });
   for (const n of ['home', 'work', 'about', 'contact']) await collage.clone().toFile(path.join(dir, n + '.jpg'));
 }
 
@@ -427,7 +427,7 @@ async function ogImages() {
   fs.mkdirSync(path.join(OUT, 'assets', 'fonts'), { recursive: true });
   for (const f of fs.readdirSync(path.join(HERE, 'src', 'fonts'))) fs.copyFileSync(path.join(HERE, 'src', 'fonts', f), path.join(OUT, 'assets', 'fonts', f));
   fs.writeFileSync(path.join(OUT, '.nojekyll'), ''); // tell GitHub Pages to serve the files as they are
-  fs.writeFileSync(path.join(OUT, 'assets', 'favicon.svg'), '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#12110f"/><rect x="10" y="10" width="44" height="44" fill="#2a37ff"/><path d="M19 21h26L21 43h26" fill="none" stroke="#ffffff" stroke-width="6" stroke-linejoin="miter"/></svg>');  copyImages(); await ogImages();
+  fs.writeFileSync(path.join(OUT, 'assets', 'favicon.svg'), '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#1b1b1b"/><rect x="10" y="10" width="44" height="44" fill="#8f00ff"/><path d="M19 21h26L21 43h26" fill="none" stroke="#ffffff" stroke-width="6" stroke-linejoin="miter"/></svg>');  copyImages(); await ogImages();
   const urls = pages.filter((x) => x.pg.file !== '404.html');
   fs.writeFileSync(path.join(OUT, 'sitemap.xml'), '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + urls.map((x) => `  <url><loc>${CONFIG.url}${x.pg.path}</loc><lastmod>${new Date().toISOString().slice(0, 10)}</lastmod></url>`).join('\n') + '\n</urlset>\n');
   fs.writeFileSync(path.join(OUT, 'robots.txt'), CONFIG.indexable ? `User-agent: *\nAllow: /\n\nSitemap: ${CONFIG.url}/sitemap.xml\n` : 'User-agent: *\nDisallow: /\n');
