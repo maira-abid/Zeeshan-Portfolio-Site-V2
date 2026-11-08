@@ -110,3 +110,16 @@ After deploying: submit `sitemap.xml` in Google Search Console and Bing Webmaste
 - **Client strip:** the scrolling strip on the home page uses the client's own list, alphabetical (`CLIENTS` in `build.js`).
 - **No full-size images are published.** `webRel()` / `imgTag()` / `copyImages()` only use and only copy the largest web copy of each image (1200 px wide at most); the full-size files stay in `content/img/` for rebuilding the share images but are never in `public/` or `docs/`. This is a deterrent, like the right-click and drag block: screenshots still work, and the GitHub repository itself still contains the files in `content/img/`.
 - **Home panels:** the picture sits in a 4:3 frame, and `PANEL` in `build.js` picks the frame and crop for CarSwitch (the "Looking to sell your car?" frame) and Breakfast Box (logo kept whole). The picture is shown whole at rest and only zooms slightly and drifts on hover.
+
+## Pointer and scroll effects ("lab")
+
+Light, library-free effects in `src/main.js` ("lab") and the end of `src/styles.css`. No WebGL, no 3D, no extra downloads.
+
+- **Home headline:** the letters of "Design that moves numbers." ripple up as the pointer passes.
+- **Magnetic buttons:** the main buttons (and the theme and motion switches) lean a few pixels toward the pointer.
+- **Client strip:** it skews slightly with the speed of the scroll, then settles.
+- **Removed at the owner's request:** the floating project picture on the Work list (too distracting).
+- **Cursor:** a small square is the pointer. Over something clickable (buttons, links, work rows, the picture of a card) the square fades away and four corner brackets open from the pointer and expand onto that element, then close again when you leave. It never floats beside the brackets: it is either the pointer or gone. Text fields keep the normal text cursor. Mouse and trackpad only; off with Motion: off. The cursor remembers where the pointer was when you leave a page and appears there immediately on the next page (a `zk-pre` class set in <head> hides the normal arrow from the first paint), so the normal arrow no longer flashes at the start of each page.
+- **Kept from before:** kinetic headline entrance, panel image drift, count-up numbers.
+
+**Built to stay light:** every effect is off for *Motion: off*, reduced-motion and touch screens; each one only runs while something is actually moving (no idle animation loops); only transforms are animated. **Frame-rate guard:** if the page falls below about 30 fps while an effect runs, Motion is switched off automatically (the button reads "Motion: off (auto)"). That is not saved, so the next visit starts from the visitor's own choice. Measured here: about 12 ms per frame (around 80 fps) with the headline effect running; the guard was tested by forcing slow frames.

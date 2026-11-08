@@ -179,7 +179,7 @@ function shell(pg, body) {
 <link rel="preload" href="${ROOTP}assets/fonts/raleway-var.woff2" as="font" type="font/woff2" crossorigin>
 
 <link rel="stylesheet" href="${ROOTP}assets/css/styles.css">
-<script>(function(){var d=document.documentElement;d.className+=' js';var t='dark',m='on';try{t=localStorage.getItem('zs-theme')||'dark';m=localStorage.getItem('zs-motion')||(matchMedia('(prefers-reduced-motion: reduce)').matches?'off':'on')}catch(e){}d.setAttribute('data-theme',t);d.setAttribute('data-motion',m)})()</script>
+<script>(function(){var d=document.documentElement;d.className+=' js';var t='dark',m='on';try{t=localStorage.getItem('zs-theme')||'dark';m=localStorage.getItem('zs-motion')||(matchMedia('(prefers-reduced-motion: reduce)').matches?'off':'on')}catch(e){}d.setAttribute('data-theme',t);d.setAttribute('data-motion',m);try{if(m!=='off'&&matchMedia('(hover: hover) and (pointer: fine)').matches&&sessionStorage.getItem('zk-pos'))d.className+=' zk-pre'}catch(e){}})()</script>
 <script type="application/ld+json">${JSON.stringify(pg.jsonld)}</script>
 </head>
 <body>
@@ -371,7 +371,7 @@ function casePage(slug) {
     ${html}
   </div>
 </div>
-<div class="next"><a href="${ROOTP}work/${next.slug}/" style="${themeStyle(next.slug)}"><div class="wrap"><span class="label">Next project</span><b>${esc(next.title)}</b></div></a></div>
+<div class="next"><a href="${ROOTP}work/${next.slug}/" style="${themeStyle(next.slug)}"><div class="wrap next__in"><span class="next__img">${imgTag(HERO[next.slug], '', { sizes: '(max-width: 720px) 34vw, 260px' })}</span><span class="next__txt"><span class="label">Next project</span><b>${esc(next.title)}</b></span></div></a></div>
 ${cta()}
 <dialog class="lb" aria-label="Image viewer"><div class="in"><img alt=""></div><button type="button" aria-label="Close image">&times;</button></dialog>`;
   const c0 = catName(p.categories[0]);
