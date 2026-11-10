@@ -68,6 +68,21 @@
       });
     });
   }
+  /* work list: order (Featured or A-Z) */
+  var sorts = $$('[data-sort]'), wlist = $('.worklist');
+  if (sorts.length && wlist) {
+    var original = $$('li', wlist);
+    var titleOf = function (li) { var t = $('.t', li); return (t && t.childNodes[0] ? t.childNodes[0].textContent : li.textContent).trim(); };
+    sorts.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var mode = b.getAttribute('data-sort'), items = original.slice();
+        if (mode === 'az') items.sort(function (x, y) { return titleOf(x).localeCompare(titleOf(y)); });
+        items.forEach(function (li, i) { wlist.appendChild(li); var n = $('.i', li); if (n) n.textContent = pad2(i + 1); });
+        sorts.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        var live = $('#filter-live'); if (live) live.textContent = mode === 'az' ? 'Projects ordered A to Z' : 'Projects in featured order';
+      });
+    });
+  }
   /* Image protection (a deterrent, not a lock): no right-click menu, no dragging an image out and no long-press "save image" on images,
      so "Open image in new tab" and "Save image as" are not offered. It cannot stop screenshots or the browser's developer tools. */
   document.addEventListener('contextmenu', function (e) { if (e.target && e.target.tagName === 'IMG') e.preventDefault(); });
@@ -124,6 +139,8 @@
     var syncTheme = function () { tb.setAttribute('aria-pressed', root.getAttribute('data-theme') === 'light' ? 'true' : 'false'); };
     syncTheme();
     tb.addEventListener('click', function () { var t = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'; root.setAttribute('data-theme', t); try { localStorage.setItem('zs-theme', t); } catch (e) {} syncTheme(); });
+    var sysMq = window.matchMedia && matchMedia('(prefers-color-scheme: light)'); // with no saved choice the site follows the system colour mode, also when it changes
+    if (sysMq && sysMq.addEventListener) sysMq.addEventListener('change', function (e) { var saved = null; try { saved = localStorage.getItem('zs-theme'); } catch (er) {} if (!saved) { root.setAttribute('data-theme', e.matches ? 'light' : 'dark'); syncTheme(); } });
   }
   var mo = $('.motion-btn');
   if (mo) {
@@ -244,67 +261,39 @@
     window.addEventListener('scroll', function () { if (!queued) { queued = true; requestAnimationFrame(skew); } }, { passive: true });
   }
 
-  /* 4. themed cursor: a small square is the pointer. Over something clickable (buttons, links, rows, the picture of a card) the square fades away and four
-        corner brackets open from the pointer and expand onto that element, then close again when you leave. Text fields keep the normal text cursor.
-        Mouse and trackpad only; created on the first real mouse move; off with Motion: off. What is under the pointer is read on every move, so it can never go stale. */
+  /* 4. pointer: a small dot that inverts whatever it is over, so it reads black on a light page and white on a dark one (and flips on text and pictures).
+        It grows over buttons, links and pictures. Mouse and trackpad only; created on the first mouse move; off with Motion: off; text fields keep the normal
+        text cursor. No animation loop: it only moves when the mouse moves, and the position is carried to the next page so the normal arrow never flashes. */
   if (fine && !reduce) {
+    var C_BIG = 'a[href], button, summary, select, label[for], [role="button"], .facade, .zoom, .pan__img, .wcard__img, input[type="submit"], input[type="checkbox"], input[type="radio"]';
     var C_TEXT = 'input:not([type="submit"]):not([type="checkbox"]):not([type="radio"]), textarea, [contenteditable="true"]';
-    var C_LINK = 'a[href], button, summary, select, label[for], [role="button"], .facade, .zoom, input[type="submit"], input[type="checkbox"], input[type="radio"]';
-    var cw, frEl, sqEl, cBuilt = false, cx = -100, cy = -100, fx = -100, fy = -100, fw = 14, fh = 14, lockEl = null, cLoop = false, cLast = null;
-    var pickLock = function (t) { // the element the brackets should hug, or null
-      if (!t || !t.closest) return null;
-      var p = t.closest('.pan'); if (p) return $('.pan__img', p) || null;          // home panels: hug the picture
-      var w = t.closest('.wcard'); if (w) return $('.wcard__img', w) || null;       // work cards: hug the picture
-      var l = t.closest(C_LINK); if (!l) return null;
-      var r = l.getBoundingClientRect();
-      return (r.height <= 160 || (r.width <= 700 && r.height <= 260)) ? l : null;   // rows, buttons, links; not whole sections
+    var cw, cBuilt = false, cx = -100, cy = -100, cLast = null;
+    var cPlace = function () { cw.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0) translate(-50%,-50%)'; };
+    var cState = function (t) {
+      cLast = t;
+      cw.classList.toggle('is-big', !!(t && t.closest && t.closest(C_BIG)));
+      cw.classList.toggle('is-text', !!(t && t.closest && t.closest(C_TEXT)));
     };
-    var cTarget = function () {
-      if (lockEl && document.documentElement.contains(lockEl)) { var r = lockEl.getBoundingClientRect(), pad = 7; return [r.left + r.width / 2, r.top + r.height / 2, r.width + pad * 2, r.height + pad * 2]; }
-      return [cx, cy, 14, 14];
-    };
-    var cFrame = function (t) {
-      guard(t);
-      var g = cTarget(); fx += (g[0] - fx) * .32; fy += (g[1] - fy) * .32; fw += (g[2] - fw) * .32; fh += (g[3] - fh) * .32;
-      frEl.style.width = fw.toFixed(1) + 'px'; frEl.style.height = fh.toFixed(1) + 'px';
-      frEl.style.transform = 'translate3d(' + (fx - fw / 2).toFixed(1) + 'px,' + (fy - fh / 2).toFixed(1) + 'px,0)';
-      if (Math.abs(g[0] - fx) > .3 || Math.abs(g[1] - fy) > .3 || Math.abs(g[2] - fw) > .3 || Math.abs(g[3] - fh) > .3) requestAnimationFrame(cFrame); else cLoop = false;
-    };
-    var cKick = function () { if (!cLoop && motionOn()) { cLoop = true; requestAnimationFrame(cFrame); } };
     var cBuild = function (x, y) {
-      cw = document.createElement('div'); cw.className = 'zk'; cw.setAttribute('aria-hidden', 'true');
-      cw.innerHTML = '<div class="zk__fr"><b></b><b></b><b></b><b></b></div><div class="zk__sq"></div>';
-      document.body.appendChild(cw); frEl = cw.firstChild; sqEl = cw.lastChild; root.classList.add('zk-on'); root.classList.remove('zk-pre');
-      cBuilt = true; fx = cx = x; fy = cy = y; sqEl.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) translate(-50%,-50%)';
+      cw = document.createElement('div'); cw.className = 'zk'; cw.setAttribute('aria-hidden', 'true'); cw.innerHTML = '<i></i>';
+      document.body.appendChild(cw); root.classList.add('zk-on'); root.classList.remove('zk-pre'); cBuilt = true; cx = x; cy = y; cPlace();
     };
     document.addEventListener('pointermove', function (e) {
       if (e.pointerType === 'touch') return;
       if (!cBuilt) cBuild(e.clientX, e.clientY);
-      cx = e.clientX; cy = e.clientY; cw.classList.remove('is-out');
-      sqEl.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0) translate(-50%,-50%)';
-      if (e.target !== cLast) { // only when the element under the pointer changes
-        cLast = e.target; var was = lockEl; lockEl = pickLock(e.target);
-        if (lockEl && !was) { fx = cx; fy = cy; fw = fh = 14; }   // open from the pointer
-        cw.classList.toggle('is-on', !!lockEl);
-        cw.classList.toggle('is-text', !!(e.target && e.target.closest && e.target.closest(C_TEXT)));
-        cKick();
-      }
-      if (!lockEl && !cLoop) { fx = cx; fy = cy; }               // idle: sit on the pointer, invisible
+      cx = e.clientX; cy = e.clientY; cw.classList.remove('is-out'); cPlace();
+      if (e.target !== cLast) cState(e.target); // read on every change of the element under the pointer, so it never goes stale
     }, { passive: true });
-    window.addEventListener('scroll', function () { if (lockEl) cKick(); }, { passive: true });
-    document.addEventListener('pointerdown', function (e) { if (cBuilt && e.button === 0) cw.classList.add('is-down'); }, { passive: true });
-    document.addEventListener('pointerup', function () { if (cBuilt) { cw.classList.remove('is-down'); cLast = null; } }, { passive: true });
-    /* carry the pointer position over to the next page, so the cursor is there from the first moment (no flash of the normal arrow) */
     var cSave = function () { if (cBuilt && cx >= 0) { try { sessionStorage.setItem('zk-pos', JSON.stringify({ x: cx, y: cy, t: Date.now() })); } catch (e) {} } };
-    window.addEventListener('pagehide', cSave); document.addEventListener('pointerdown', cSave, { passive: true });
+    document.addEventListener('pointerdown', function (e) { if (cBuilt && e.button === 0) cw.classList.add('is-down'); cSave(); }, { passive: true });
+    document.addEventListener('pointerup', function () { if (cBuilt) { cw.classList.remove('is-down'); cLast = null; } }, { passive: true });
+    document.documentElement.addEventListener('mouseleave', function () { if (cBuilt) cw.classList.add('is-out'); });
+    window.addEventListener('pagehide', cSave);
     (function () {
       var sp = null; try { sp = JSON.parse(sessionStorage.getItem('zk-pos') || 'null'); sessionStorage.removeItem('zk-pos'); } catch (e) {}
       if (sp && Date.now() - sp.t < 6000 && sp.x >= 0 && sp.x <= window.innerWidth && sp.y >= 0 && sp.y <= window.innerHeight && motionOn()) {
-        cBuild(sp.x, sp.y);
-        var under = document.elementFromPoint(sp.x, sp.y); // start in the right state if the pointer is already over something clickable
-        if (under) { cLast = under; lockEl = pickLock(under); if (lockEl) { fx = cx; fy = cy; fw = fh = 14; cw.classList.add('is-on'); cKick(); } cw.classList.toggle('is-text', !!(under.closest && under.closest(C_TEXT))); }
+        cBuild(sp.x, sp.y); var under = document.elementFromPoint(sp.x, sp.y); if (under) cState(under);
       } else root.classList.remove('zk-pre');
     })();
-    document.documentElement.addEventListener('mouseleave', function () { if (cBuilt) { lockEl = null; cLast = null; cw.classList.remove('is-on'); cw.classList.add('is-out'); } });
   }
 })();

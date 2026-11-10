@@ -179,7 +179,7 @@ function shell(pg, body) {
 <link rel="preload" href="${ROOTP}assets/fonts/raleway-var.woff2" as="font" type="font/woff2" crossorigin>
 
 <link rel="stylesheet" href="${ROOTP}assets/css/styles.css">
-<script>(function(){var d=document.documentElement;d.className+=' js';var t='dark',m='on';try{t=localStorage.getItem('zs-theme')||'dark';m=localStorage.getItem('zs-motion')||(matchMedia('(prefers-reduced-motion: reduce)').matches?'off':'on')}catch(e){}d.setAttribute('data-theme',t);d.setAttribute('data-motion',m);try{if(m!=='off'&&matchMedia('(hover: hover) and (pointer: fine)').matches&&sessionStorage.getItem('zk-pos'))d.className+=' zk-pre'}catch(e){}})()</script>
+<script>(function(){var d=document.documentElement;d.className+=' js';var t='dark',m='on';try{t=localStorage.getItem('zs-theme')||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');m=localStorage.getItem('zs-motion')||(matchMedia('(prefers-reduced-motion: reduce)').matches?'off':'on')}catch(e){}d.setAttribute('data-theme',t);d.setAttribute('data-motion',m);try{if(m!=='off'&&matchMedia('(hover: hover) and (pointer: fine)').matches&&sessionStorage.getItem('zk-pos'))d.className+=' zk-pre'}catch(e){}})()</script>
 <script type="application/ld+json">${JSON.stringify(pg.jsonld)}</script>
 </head>
 <body>
@@ -250,13 +250,13 @@ function home() {
   <div class="hero__top"><h1 class="display">Design that moves <em>numbers.</em></h1></div>
   <div class="hero__row">
     <div><p class="lede">I am Zeeshan, a designer in Toronto. I build brands, campaigns and motion, then check the numbers: a pizza brand that became the app's top seller, a sale that tripled revenue, animations that cut support queries by 40%.</p>
-    <div class="hero__actions"><a class="btn" href="work/">See the work ${arrow}</a></div></div>
+    <div class="hero__actions"><a class="btn btn--hi" href="work/">See the work ${arrow}</a></div></div>
     <dl class="slate"><div><dt>Role</dt><dd>Brand, motion and campaign designer</dd></div><div><dt>Base</dt><dd>Toronto, Ontario</dd></div><div><dt>Since</dt><dd>2017, across 8 industries</dd></div>${CONFIG.availability ? `<div><dt>Status</dt><dd><i class="dot" aria-hidden="true"></i>${esc(CONFIG.availability)}</dd></div>` : ''}</dl>
   </div>
 </div></section>
 <section class="stack" aria-labelledby="work-h"><div class="wrap section__head"><h2 class="display" id="work-h">Selected work</h2><p>Projects where design changed a number the business cared about.</p></div>
 <ol class="stack__list">${stack}</ol>
-<div class="wrap stack__all"><a class="btn btn--ghost" href="work/">See all work ${arrow}</a></div></section>
+<div class="wrap stack__all"><a class="btn btn--hi" href="work/">See all work ${arrow}</a></div></section>
 <section class="band" aria-label="Results at a glance"><div class="wrap"><ul>
   <li><b class="num">3x</b><span>sales from one back-to-school campaign</span></li>
   <li><b class="num">50–60%</b><span>of daily app sales from one brand I created</span></li>
@@ -305,6 +305,7 @@ function work() {
   <p class="label">Work</p><h1 class="display">Real work. <em>Real results.</em></h1>
   <p class="lede hero__sub">Case studies with the numbers, and image-led projects. Click a row to read.</p>
   <div class="filters" role="group" aria-label="Filter projects"><button type="button" data-filter="all" aria-pressed="true">All</button>${cats.map((c) => `<button type="button" data-filter="${c.id}" aria-pressed="false">${esc(c.name)}</button>`).join('')}</div>
+  <div class="sortbar" role="group" aria-label="Order projects"><span class="sortbar__label">Order</span><button type="button" data-sort="default" aria-pressed="true">Featured</button><button type="button" data-sort="az" aria-pressed="false">A&ndash;Z</button></div>
   <p class="sr-only" id="filter-live" aria-live="polite"></p>
   <ul class="worklist">${rows}</ul>
 </div></section>${cta()}`;
@@ -389,9 +390,8 @@ function about() {
   <div class="about-page"><div class="portrait" role="img" aria-label="Headshot placeholder"><span>Headshot coming soon</span></div>
   <div class="prose"><section><p class="lede" style="max-width:none">${esc(S.about[0])}</p></section>
   <section><p>${esc(S.about[1])}</p><p>${esc(S.about[2])}</p></section>
-  <section><p>${esc(S.about[3])}</p><p>${esc(S.about[4])}</p></section>
-  <section><p>${esc(S.about[5].replace('{{work}}', 'versatile art-style').replace('{{contact}}', 'Drop me a message'))} <a href="${ROOTP}contact/">Start the conversation.</a></p></section>
-  <ul class="facts"><li><b>Toronto, ON</b><span>Based in Canada</span></li><li><b>Since 2017</b><span>Designing professionally</span></li><li><b>8 industries</b><span>Fashion, advertising, healthcare, retail, tech, apps, food, cannabis</span></li><li><b>Next</b><span>Design research, creative management and marketing</span></li></ul>
+  <section><p>${esc(S.about[3].replace('{{work}}', 'versatile art-style').replace('{{contact}}', 'Drop me a message'))} <a href="${ROOTP}contact/">Start the conversation.</a></p></section>
+  <ul class="facts"><li><b>Toronto, ON</b><span>Based in Canada</span></li><li><b>Since 2017</b><span>Designing professionally</span></li><li><b>8 industries</b><span>Fashion, advertising, healthcare, retail, tech, apps, food, cannabis</span></li></ul>
   </div></div></section>${cta()}`;
   add({ file: 'about/index.html', path: '/about/', key: 'about', og: 'about', title: 'About Zeeshan Abid | Designer in Toronto, Ontario', description: 'Zeeshan Abid is a designer in Toronto, ON, working since 2017 in branding, motion graphics, marketing, packaging and UI/UX across fashion, healthcare and tech.', type: 'AboutPage', crumbs: [['Home', '/'], ['About', '/about/']] }, body);
 }
@@ -402,7 +402,8 @@ function contact() {
   const body = `<section class="wrap hero"><p class="label">Contact</p><h1 class="display" style="margin-top:12px">Let's make something <em>people remember.</em></h1>
   <div class="contact-grid"><div><p class="lede">Hiring, a project or just a design question? Send a few lines. I reply personally.</p>
   <a class="mail" href="mailto:${CONFIG.email}">${CONFIG.email}</a>
-  <ul class="prose" style="margin-top:34px;display:grid;gap:14px;max-width:46ch"><li><b>Helpful to include:</b> what you are trying to achieve, the timeline, and a link to anything relevant.</li><li><b>Where I am:</b> Toronto, Ontario. Happy to work with teams anywhere.</li>${CONFIG.resumeUrl ? `<li><a href="${CONFIG.resumeUrl}">Download my résumé (PDF)</a></li>` : ''}<li><a href="https://vimeo.com/zeeshanabid" rel="me noopener">See my animation work on Vimeo</a></li></ul></div>
+  <ul class="prose" style="margin-top:34px;display:grid;gap:14px;max-width:46ch"><li><b>Helpful to include:</b> what you are trying to achieve, the timeline, and a link to anything relevant.</li><li><b>Where I am:</b> Toronto, Ontario. Happy to work with teams anywhere.</li>${CONFIG.resumeUrl ? `<li><a href="${CONFIG.resumeUrl}">Download my résumé (PDF)</a></li>` : ''}</ul>
+  <div class="online"><p class="label">Find me online</p><ul class="online__list">${socials().map((s) => `<li><a href="${esc(s.href)}" rel="me noopener" target="_blank">${esc(s.label)}<span class="sr-only"> (opens in a new tab)</span></a></li>`).join('')}</ul></div></div>
   <form class="form" data-mailto="${CONFIG.email}" novalidate>
     ${field('name', 'Your name', 'text', true, 'autocomplete="name"')}${field('email', 'Email address', 'email', true, 'autocomplete="email" inputmode="email"')}${field('company', 'Company (optional)', 'text', false, 'autocomplete="organization"')}${field('subject', 'Subject (optional)', 'text', false)}${field('message', 'What would you like to talk about?', 'textarea', true)}
     <button class="btn" type="submit">Write my email ${arrow}</button>

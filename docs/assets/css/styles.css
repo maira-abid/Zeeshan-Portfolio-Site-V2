@@ -489,20 +489,28 @@ html[data-motion="off"] .c { transform: none; transition: none; }
 .next__txt { display: block; min-width: 0; }
 .next .next__txt b { margin-top: 10px; }
 
-/* ===== themed cursor (see "4. themed cursor" in main.js): a square pointer; over something clickable it fades away and corner brackets expand onto the element ===== */
+/* ===== pointer (see "4. pointer" in main.js): a small dot that inverts what it is over: black on light pages, white on dark ones ===== */
 html.zk-on:not([data-motion="off"]), html.zk-on:not([data-motion="off"]) *:not(input):not(textarea):not(select),
 html.zk-pre:not([data-motion="off"]), html.zk-pre:not([data-motion="off"]) *:not(input):not(textarea):not(select) { cursor: none !important; }
-.zk { position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none; }
+.zk { position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none; transition: opacity .15s; }
+.zk i { display: block; width: 16px; height: 16px; border-radius: 50%; background: rgba(255, 255, 255, .02); -webkit-backdrop-filter: grayscale(1) invert(1); backdrop-filter: grayscale(1) invert(1); transition: scale .18s ease-out; }
+@supports not ((backdrop-filter: invert(1)) or (-webkit-backdrop-filter: invert(1))) { .zk { mix-blend-mode: difference; } .zk i { background: #fff; } }
+.zk.is-big i { scale: 2.8; }
+.zk.is-down i { scale: .8; }
+.zk.is-big.is-down i { scale: 2.2; }
+.zk.is-out, .zk.is-text { opacity: 0; }
 html[data-motion="off"] .zk { display: none; }
-.zk__fr { position: fixed; left: 0; top: 0; width: 14px; height: 14px; opacity: 0; will-change: transform; transition: opacity .15s ease-out, scale .15s; }
-.zk.is-on .zk__fr { opacity: 1; }
-.zk__sq { position: fixed; left: 0; top: 0; width: 9px; height: 9px; background: var(--hi); border: 2px solid var(--ink); will-change: transform; transition: opacity .12s ease-out, scale .12s ease-out; }
-.zk.is-on .zk__sq, .zk.is-text .zk__sq, .zk.is-out .zk__sq { opacity: 0; scale: .4; }
-.zk.is-down .zk__sq { scale: .65; }
-.zk.is-down .zk__fr { scale: .96; }
-.zk__fr b { position: absolute; width: 9px; height: 9px; border: 0 solid var(--ink); }
-.zk__fr b:nth-child(1) { left: 0; top: 0; border-width: 2px 0 0 2px; }
-.zk__fr b:nth-child(2) { right: 0; top: 0; border-width: 2px 2px 0 0; }
-.zk__fr b:nth-child(3) { left: 0; bottom: 0; border-width: 0 0 2px 2px; }
-.zk__fr b:nth-child(4) { right: 0; bottom: 0; border-width: 0 2px 2px 0; }
 @media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) { .zk { display: none; } }
+
+/* ===== 09-Nov feedback: purple buttons, order option, find me online ===== */
+.btn--hi { background: var(--hi); color: var(--on-hi); border-color: var(--hi); }
+.btn--hi:hover, .btn--hi:focus-visible { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.sortbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
+.sortbar__label { margin-right: 4px; font: 600 .75rem/1 var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--mute); }
+.sortbar button { padding: 9px 14px; border: 2px solid var(--ink); background: transparent; color: var(--ink); font: 600 .75rem/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; cursor: pointer; }
+.sortbar button:hover { background: var(--panel); }
+.sortbar button[aria-pressed="true"] { background: var(--hi); border-color: var(--hi); color: var(--on-hi); }
+.online { margin-top: 34px; }
+.online__list { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 0; padding: 0; list-style: none; }
+.online__list a { display: inline-block; padding: 12px 18px; border: 2px solid var(--ink); text-decoration: none; font: 600 .8rem/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+.online__list a:hover, .online__list a:focus-visible { background: var(--hi); border-color: var(--hi); color: var(--on-hi); }

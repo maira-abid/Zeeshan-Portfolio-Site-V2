@@ -123,3 +123,13 @@ Light, library-free effects in `src/main.js` ("lab") and the end of `src/styles.
 - **Kept from before:** kinetic headline entrance, panel image drift, count-up numbers.
 
 **Built to stay light:** every effect is off for *Motion: off*, reduced-motion and touch screens; each one only runs while something is actually moving (no idle animation loops); only transforms are animated. **Frame-rate guard:** if the page falls below about 30 fps while an effect runs, Motion is switched off automatically (the button reads "Motion: off (auto)"). That is not saved, so the next visit starts from the visitor's own choice. Measured here: about 12 ms per frame (around 80 fps) with the headline effect running; the guard was tested by forcing slow frames.
+
+## Feedback of 09-Nov-2026: what was done
+
+- **Pointer:** the box-shaped pointer and the "sticky" selection are gone. A small dot inverts whatever it is over (a grayscale invert: black on a light page, white on a dark one, flipping on text and pictures). It grows over buttons, links and pictures but never disappears, so the project-row highlight on hover stays and the cursor stays visible. Mouse only; text fields keep the normal text cursor; off with Motion: off.
+- **Colour mode:** the default follows the visitor's system setting (and changes with it) until they use the switch.
+- **Buttons:** "See the work" and "See all work" are purple.
+- **Work page:** an "Order" option, Featured or A-Z (it also works together with the category filters).
+- **About:** the new copy from `ABOUT ME_2.txt` (the old "Next" fact about design research was removed because that paragraph is no longer in the copy).
+- **Contact:** a "Find me online" row (Behance, Vimeo, LinkedIn, Instagram).
+- **Framer:** `framer/` predates these changes (cursor, About copy, new buttons and order option); update it in the single Framer pass.
