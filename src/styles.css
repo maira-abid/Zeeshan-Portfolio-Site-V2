@@ -237,7 +237,8 @@ h1 em, .cta h2 em { font-style: normal; color: var(--on-hi); background-color: t
 .prose h2 small { display: block; font: 500 .75rem/1.4 var(--mono); font-stretch: 100%; letter-spacing: .1em; color: var(--mute); margin-bottom: 12px; }
 .tldr { background: var(--pa); color: var(--on); border: 2px solid var(--ink); padding: clamp(20px, 3vw, 32px); }
 .tldr .label { color: inherit; margin-bottom: 12px; }
-.tldr p:not(.label) { margin: 0; max-width: none; font: 600 clamp(1.25rem, 2.2vw, 1.7rem)/1.35 var(--sans); }
+.tldr p:not(.label) { margin: 0; max-width: none; font: 600 clamp(1.05rem, 1.6vw, 1.3rem)/1.5 var(--sans); }
+.tldr p:not(.label) + p { margin-top: 14px; }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); border-top: 2px solid var(--ink); border-left: 2px solid var(--ink); margin-top: 28px; }
 .stat { padding: 20px; border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
 .stat b { display: block; font: 850 clamp(2.4rem, 4.8vw, 4rem)/.9 var(--sans); margin-bottom: 10px; }
@@ -489,18 +490,6 @@ html[data-motion="off"] .c { transform: none; transition: none; }
 .next__txt { display: block; min-width: 0; }
 .next .next__txt b { margin-top: 10px; }
 
-/* ===== pointer (see "4. pointer" in main.js): a small dot that inverts what it is over: black on light pages, white on dark ones ===== */
-html.zk-on:not([data-motion="off"]), html.zk-on:not([data-motion="off"]) *:not(input):not(textarea):not(select),
-html.zk-pre:not([data-motion="off"]), html.zk-pre:not([data-motion="off"]) *:not(input):not(textarea):not(select) { cursor: none !important; }
-.zk { position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none; transition: opacity .15s; }
-.zk i { display: block; width: 16px; height: 16px; border-radius: 50%; background: rgba(255, 255, 255, .02); -webkit-backdrop-filter: grayscale(1) invert(1); backdrop-filter: grayscale(1) invert(1); transition: scale .18s ease-out; }
-@supports not ((backdrop-filter: invert(1)) or (-webkit-backdrop-filter: invert(1))) { .zk { mix-blend-mode: difference; } .zk i { background: #fff; } }
-.zk.is-big i { scale: 2.8; }
-.zk.is-down i { scale: .8; }
-.zk.is-big.is-down i { scale: 2.2; }
-.zk.is-out, .zk.is-text { opacity: 0; }
-html[data-motion="off"] .zk { display: none; }
-@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) { .zk { display: none; } }
 
 /* ===== 09-Nov feedback: purple buttons, order option, find me online ===== */
 .btn--hi { background: var(--hi); color: var(--on-hi); border-color: var(--hi); }
@@ -514,3 +503,20 @@ html[data-motion="off"] .zk { display: none; }
 .online__list { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 0; padding: 0; list-style: none; }
 .online__list a { display: inline-block; padding: 12px 18px; border: 2px solid var(--ink); text-decoration: none; font: 600 .8rem/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; }
 .online__list a:hover, .online__list a:focus-visible { background: var(--hi); border-color: var(--hi); color: var(--on-hi); }
+
+/* ---------- Pointer (see js/cursor.js): the normal arrow, solid black on the light version and solid white on the dark one. Over anything clickable it inverts. ---------- */
+html.zk-on:not([data-motion="off"]), html.zk-on:not([data-motion="off"]) *:not(input):not(textarea):not(select),
+html.zk-pre:not([data-motion="off"]), html.zk-pre:not([data-motion="off"]) *:not(input):not(textarea):not(select) { cursor: none !important; }
+.zk { position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none; transition: opacity .15s; }
+.zk svg { display: block; width: 17px; height: 27px; overflow: visible; }
+.zk svg path { fill: #fff; stroke: #000; stroke-width: 1.3; stroke-linejoin: round; }
+html[data-theme="light"] .zk svg path { fill: #000; stroke: #fff; }
+.zk.on-dark svg path { fill: #fff; stroke: #000; }
+.zk i { display: none; width: 16px; height: 26px; clip-path: polygon(0 0, 0 22px, 5.2px 17.4px, 8.6px 25.4px, 11.6px 24px, 8.3px 16.4px, 15.2px 16.4px); background: rgba(255, 255, 255, .02); -webkit-backdrop-filter: grayscale(1) invert(1) contrast(4); backdrop-filter: grayscale(1) invert(1) contrast(4); }
+.zk.is-big svg { display: none; }
+.zk.is-big i { display: block; }
+@supports not ((backdrop-filter: invert(1)) or (-webkit-backdrop-filter: invert(1))) { .zk.is-big { mix-blend-mode: difference; } .zk.is-big i { background: #fff; } }
+.zk.is-out, .zk.is-text { opacity: 0; }
+.zk.is-down { transform-origin: 0 0; }
+html[data-motion="off"] .zk { display: none; }
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) { .zk { display: none; } }

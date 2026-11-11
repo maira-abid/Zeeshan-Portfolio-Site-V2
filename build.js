@@ -179,7 +179,7 @@ function shell(pg, body) {
 <link rel="preload" href="${ROOTP}assets/fonts/raleway-var.woff2" as="font" type="font/woff2" crossorigin>
 
 <link rel="stylesheet" href="${ROOTP}assets/css/styles.css">
-<script>(function(){var d=document.documentElement;d.className+=' js';var t='dark',m='on';try{t=localStorage.getItem('zs-theme')||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');m=localStorage.getItem('zs-motion')||(matchMedia('(prefers-reduced-motion: reduce)').matches?'off':'on')}catch(e){}d.setAttribute('data-theme',t);d.setAttribute('data-motion',m);try{if(m!=='off'&&matchMedia('(hover: hover) and (pointer: fine)').matches&&sessionStorage.getItem('zk-pos'))d.className+=' zk-pre'}catch(e){}})()</script>
+<script>(function(){var d=document.documentElement;d.className+=' js';var t='dark',m='on';try{t=localStorage.getItem('zs-theme')||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');m=localStorage.getItem('zs-motion')||(matchMedia('(prefers-reduced-motion: reduce)').matches?'off':'on')}catch(e){}d.setAttribute('data-theme',t);d.setAttribute('data-motion',m);try{if(m!=='off'&&matchMedia('(hover: hover) and (pointer: fine)').matches&&!matchMedia('(prefers-reduced-motion: reduce)').matches)d.className+=' zk-pre'}catch(e){}})()</script>
 <script type="application/ld+json">${JSON.stringify(pg.jsonld)}</script>
 </head>
 <body>
@@ -319,7 +319,8 @@ function casePage(slug) {
   const p = proj(slug), isCase = CASES.includes(slug), res = results(p);
   const idx = ORDER.indexOf(slug), next = proj(ORDER[(idx + 1) % ORDER.length]);
   const reframe = p.blocks.find((b) => b.title === 'Reframe');
-  const tldr = TLDR[slug] || clean(p.summary);
+  // The short version is the project's own Reframe write-up; projects without one use their summary
+  const tldrParas = reframe && reframe.paras && reframe.paras.length ? reframe.paras : [clean(p.summary)];
   let n = 0, html = '';
   const gal = (items, cap, cls) => {
     const list = items.filter((m) => m.t === 'img').slice(0, cap); if (!list.length) return '';
@@ -368,7 +369,7 @@ function casePage(slug) {
 <div class="wrap case">
   ${glance}
   <div class="prose">
-    <div class="tldr reveal" style="${themeStyle(slug)}"><p class="label">The short version</p><p>${esc(tldr)}</p></div>
+    <div class="tldr reveal" style="${themeStyle(slug)}"><p class="label">The short version</p>${tldrParas.map((t) => `<p>${esc(t)}</p>`).join('')}</div>${reframe && reframe.media ? gal(reframe.media, 2, reframe.media.length > 1 ? 'gallery--2' : 'gallery--1') : ''}
     ${html}
   </div>
 </div>

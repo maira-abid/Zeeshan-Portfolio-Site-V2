@@ -133,3 +133,7 @@ Light, library-free effects in `src/main.js` ("lab") and the end of `src/styles.
 - **About:** the new copy from `ABOUT ME_2.txt` (the old "Next" fact about design research was removed because that paragraph is no longer in the copy).
 - **Contact:** a "Find me online" row (Behance, Vimeo, LinkedIn, Instagram).
 - **Framer:** `framer/` predates these changes (cursor, About copy, new buttons and order option); update it in the single Framer pass.
+
+## Change of 10-Nov-2026
+
+- **Pointer:** the normal arrow shape, solid black in the light version and solid white in the dark version; over anything clickable it inverts what is under it (block "4. pointer" in `src/main.js`, styles at the end of `src/styles.css`). "Motion: off" brings back the normal arrow.

@@ -261,21 +261,16 @@
     window.addEventListener('scroll', function () { if (!queued) { queued = true; requestAnimationFrame(skew); } }, { passive: true });
   }
 
-  /* 4. pointer: a small dot that inverts whatever it is over, so it reads black on a light page and white on a dark one (and flips on text and pictures).
-        It grows over buttons, links and pictures. Mouse and trackpad only; created on the first mouse move; off with Motion: off; text fields keep the normal
-        text cursor. No animation loop: it only moves when the mouse moves, and the position is carried to the next page so the normal arrow never flashes. */
+  /* 4. pointer: the normal arrow shape, solid black on the light version and solid white on the dark one; over anything clickable it inverts whatever is under it. Mouse and trackpad only; created on the first mouse move; off with Motion: off; text fields keep the normal text cursor. The real arrow is hidden
+        from the first paint (class zk-pre, set in <head>) and the position is carried to the next page, so nothing flashes. No animation loop. */
   if (fine && !reduce) {
     var C_BIG = 'a[href], button, summary, select, label[for], [role="button"], .facade, .zoom, .pan__img, .wcard__img, input[type="submit"], input[type="checkbox"], input[type="radio"]';
     var C_TEXT = 'input:not([type="submit"]):not([type="checkbox"]):not([type="radio"]), textarea, [contenteditable="true"]';
     var cw, cBuilt = false, cx = -100, cy = -100, cLast = null;
-    var cPlace = function () { cw.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0) translate(-50%,-50%)'; };
-    var cState = function (t) {
-      cLast = t;
-      cw.classList.toggle('is-big', !!(t && t.closest && t.closest(C_BIG)));
-      cw.classList.toggle('is-text', !!(t && t.closest && t.closest(C_TEXT)));
-    };
+    var cPlace = function () { cw.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)'; };
+    var cState = function (t) { cLast = t; cw.classList.toggle('is-big', !!(t && t.closest && t.closest(C_BIG))); cw.classList.toggle('is-text', !!(t && t.closest && t.closest(C_TEXT))); };
     var cBuild = function (x, y) {
-      cw = document.createElement('div'); cw.className = 'zk'; cw.setAttribute('aria-hidden', 'true'); cw.innerHTML = '<i></i>';
+      cw = document.createElement('div'); cw.className = 'zk'; cw.setAttribute('aria-hidden', 'true'); cw.innerHTML = '<svg viewBox="0 0 17 27" aria-hidden="true"><path d="M1 1v21.2l4.7-4.2 3.2 7.7 3.1-1.3-3.2-7.6h6.4z"/></svg><i></i>';
       document.body.appendChild(cw); root.classList.add('zk-on'); root.classList.remove('zk-pre'); cBuilt = true; cx = x; cy = y; cPlace();
     };
     document.addEventListener('pointermove', function (e) {
@@ -290,10 +285,13 @@
     document.documentElement.addEventListener('mouseleave', function () { if (cBuilt) cw.classList.add('is-out'); });
     window.addEventListener('pagehide', cSave);
     (function () {
+      // After a refresh the browser shows its own arrow until the first mouse move (a page cannot hide or replace it before then), so the pointer is not
+      // drawn underneath it; it appears on the first move. Moving between pages of the site still carries the position over.
       var sp = null; try { sp = JSON.parse(sessionStorage.getItem('zk-pos') || 'null'); sessionStorage.removeItem('zk-pos'); } catch (e) {}
-      if (sp && Date.now() - sp.t < 6000 && sp.x >= 0 && sp.x <= window.innerWidth && sp.y >= 0 && sp.y <= window.innerHeight && motionOn()) {
+      var reloaded = (function () { try { var n = performance.getEntriesByType('navigation')[0]; return !!n && n.type === 'reload'; } catch (e) { return false; } })();
+      if (!reloaded && sp && Date.now() - sp.t < 6000 && sp.x >= 0 && sp.x <= window.innerWidth && sp.y >= 0 && sp.y <= window.innerHeight && motionOn()) {
         cBuild(sp.x, sp.y); var under = document.elementFromPoint(sp.x, sp.y); if (under) cState(under);
-      } else root.classList.remove('zk-pre');
+      }
     })();
-  }
+  } else root.classList.remove('zk-pre');
 })();
